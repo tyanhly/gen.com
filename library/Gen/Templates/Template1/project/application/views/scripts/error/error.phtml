@@ -1,0 +1,76 @@
+<div id="content">
+
+     <div class="header-title ">
+            <div class="left-header-panel"></div>
+            <div class="center-long-header-panel">
+                <div class="header-title float-left-social">
+                An error occurred
+                </div>
+            </div>
+            <div class="right-header-panel"></div>
+        </div>
+        <!-- end header title -->
+        <div class="clear"></div>
+  <div class="sub-content non-border-radius reset large-form">
+		
+        <div >
+          <div style="text-align: center;">
+          <h1>ERROR: <?php echo $this->message ?></h1>
+          </div>
+          <hr />
+        
+          <?php if (isset($this->exception)): ?>
+        
+          <h3>Exception information:</h3>
+          <p>
+              <b>Message:</b> <?php echo $this->exception->getMessage() ?>
+          </p>
+          <hr />
+        
+          <h3>Stack trace:</h3>
+          <div style="background: #cfd; line-height: 20px; padding: 10px; margin: 5px;">
+        <?php 
+        $tmp = $this->exception->getTraceAsString();
+        $tmpArr = explode('#', $tmp);
+        foreach($tmpArr as $itemLine){
+            if(strpos($itemLine, 'library')){
+                echo '<div>' . $itemLine . '</div>';
+            }
+        } 
+          
+        
+        ?>
+          </div>
+          <div style="background: #faa; line-height: 20px; padding: 10px; margin: 5px;">
+        <?php 
+        $tmp = $this->exception->getTraceAsString();
+        $tmpArr = explode('#', $tmp);
+        foreach($tmpArr as $itemLine){
+            if(!strpos($itemLine, 'library')){
+                echo '<div>' . $itemLine . '</div>';
+            }
+        } 
+          
+        
+        ?>
+          </div>
+          <hr />
+          <h3>Request Parameters:</h3>
+          <pre><?php echo var_export($this->request->getParams(), true) ?>
+          </pre>
+          <hr />
+          <h3>COOKIE:</h3>
+          <pre><?php echo var_export($_COOKIE, true) ?>
+          </pre>
+          <hr />
+          <h3>SESSION:</h3>
+          <pre><?php echo var_export($_SESSION, true) ?>
+          </pre>
+          <?php endif ?>
+                </div>
+                
+            </div><!-- end left col-->
+   
+
+
+      </div>   

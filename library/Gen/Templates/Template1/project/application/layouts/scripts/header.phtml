@@ -1,0 +1,12 @@
+<div class="navbar ">
+    <div class="navbar-inner">
+        <div class="container-fluid">
+            <span class="brand">Admin CPanel</span>
+            <div class="nav-collapse">
+              <?php
+                   echo $this->navigation()->menu()->setPartial('_nav.phtml')->render();
+              ?>
+            </div>
+        </div>
+    </div>
+</div>

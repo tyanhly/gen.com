@@ -1,0 +1,85 @@
+<ul class="breadcrumb">
+<?php
+
+        if (null === $this->container) {
+            $this->container = $this->breadcrumbs()->getContainer();
+        }
+        $minDepth = 0;
+        $maxDepth = 1;
+//        Zend_Debug::dump($this->container);die;
+        // find deepest active
+        if (!$active = $this->navigation()
+                            ->breadcrumbs()->findActive($this->container, $minDepth, $maxDepth)) {
+            return '';
+        }
+        $active = $active['page'];
+        // put the deepest active page last in breadcrumbs
+        if ($this->navigation()->breadcrumbs()->getLinkLast()) {
+            
+            
+            // render li, a tag and page
+            $aId = " id='{$active->getId()}'";
+            $aTitle = " title='{$active->getTitle()}'";
+            $aTarget = " target='{$active->getTarget()}'";
+            $aHref = " href='{$active->getHref()}'";
+            $aClass = " class='{$active->getClass()}'";
+
+            $pageHtml = "<a "
+                      . $aClass
+                      . $aId
+                      . $aTitle
+                      . $aTarget
+                      . $aHref
+                      . ">"
+                      . $this->escape($active->getLabel())
+                      . '</a>';
+            $html = '<li>' . $pageHtml . "</li>";
+            
+        } else {
+            $html = $active->getLabel();            
+            $html = $this->escape($html);
+        }
+
+
+        
+//Zend_Debug::dump($parent);die;
+        // walk back to root
+        while ($parent = $active->getParent()) {
+            if ($parent instanceof Zend_Navigation_Page) {
+                // prepend crumb to html
+
+                            
+                // render li, a tag and page
+                $aId = " id='{$parent->getId()}'";
+                $aTitle = " title='{$parent->getTitle()}'";
+                $aTarget = " target='{$parent->getTarget()}'";
+                $aHref = " href='{$parent->getHref()}'";
+                $aClass = " class='{$parent->getClass()}'";
+    
+                $pageHtml = "<a "
+                          . $aClass
+                          . $aId
+                          . $aTitle
+                          . $aTarget
+                          . $aHref
+                          . ">"
+                          . $this->escape($parent->getLabel())
+                          . '</a>';
+                $pageHtml = '<li>' . $pageHtml . "</li>";
+                
+                $html = $pageHtml
+                      . '<span class="divider">/</span>'
+                      . $html;
+            }
+//                            echo $html;die;
+            if ($parent === $this->container) {
+                // at the root of the given container
+                break;
+            }
+
+            $active = $parent;
+        }
+
+        echo strlen($html) ? '    ' . $html : '';
+?>
+</ul>

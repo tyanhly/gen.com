@@ -1,0 +1,51 @@
+<?php
+/**
+ * Model for Application_Model_Crawler_SiteLinks
+ *
+ * @version $Id$
+ */
+
+class %%MODEL_CLASS%% extends %%MODEL_ABSTRACT_CLASS%% {
+
+
+/********************************************************************
+* Define table %%TABLE_NAME%%
+********************************************************************/
+    protected $_name        = '%%TABLE_NAME%%';
+    protected $_primary     = %%TABLE_FIELD_PRIMARY%%;
+
+    protected $_dependentTables = array(
+%%DEPENDENT_TABLE%%
+    );
+
+    protected $_referenceMap    = array(
+%%REFERENCE_MAP%%
+    );
+
+
+/********************************************************************
+* Define field search, sort
+********************************************************************/
+    public $searchFields = array();
+    public $sortFields   = array();
+
+    public function init() {
+        parent::init();
+
+         /* Define field to search */
+        $this->searchFields = array(
+            %%SEARCH_FIELDS%%
+        );
+        $this->searchFields['All'] = implode(" OR ", $this->searchFields);
+
+        $this->sortFields = array(
+            %%SORT_FIELDS%%
+        );
+    }
+
+/********************************************************************
+* PUT YOUR CODE HERE
+********************************************************************/
+
+
+}
