@@ -86,22 +86,22 @@
          * @var string
          * @desc db Name
          */
-        protected $_dbName = 'MyTable';
+        protected $_dbName = 'connect4impact';
         /**
          * @var string
          * @desc db user name
          */
-        protected $_username = 'developer';
+        protected $_username = 'root';
         /**
          * @var string
          * @desc db user password
          */
-        protected $_password = 'workaholic';
+        protected $_password = '123456';
         /**
          * @var string
          * @desc db host
          */
-        protected $_host = '192.168.11.1';
+        protected $_host = '192.168.1.113';
         /**
          * @var string
          * @desc db adapter
@@ -136,7 +136,7 @@
          */
         protected function _setOption(){
             $configs = parse_ini_file(self::CONFIG_FILE_PATH, true);
-
+//            var_dump($configs);
             $this->_adapter =
                 $configs[self::ENVIRONMENT]['resources.db.adapter'];
 //            var_dump($this->_adapter);die();
@@ -226,8 +226,10 @@
          */
         protected function _connectDb($dbName=NULL){
             //ket noi csdl mysql
-            if(!$this->_connect)
+            if(!$this->_connect){
+//                echo "dfdfdf" + $this->_password;
                 $this->_connect = mysql_connect($this->_host, $this->_username, $this->_password);
+            }
             if (!$this->_connect) {
                 die('Could not connect: ' . mysql_error());
             }
@@ -726,7 +728,7 @@ EOT;
 
             $arrTmp[] = "\n" . self::PADDING_DISTANCE . self::PADDING_DISTANCE .
                         '$this->decorator();';
-            
+
             $arrTmp[] = self::PADDING_DISTANCE . "}";
 
             $arrTmp[] = "}";
@@ -846,8 +848,8 @@ EOT;
                 <tr class="<?php echo FORM_TR_CLASS ?>">
                     <td colspan="2">
                         <a class="<?php echo FORM_BUTTON_CANCEL_CLASS ?>" href="#" target="_blank">Cancel</a>
-                        <a class="<?php echo FORM_BUTTON_RESET_CLASS ?>" href="#" target="_blank">Reset</a>                        
-                        <a class="<?php echo FORM_BUTTON_SAVE_CLASS ?>" href="#" target="_blank">Save</a>                        
+                        <a class="<?php echo FORM_BUTTON_RESET_CLASS ?>" href="#" target="_blank">Reset</a>
+                        <a class="<?php echo FORM_BUTTON_SAVE_CLASS ?>" href="#" target="_blank">Save</a>
                      </td>
                 </tr>
               </div>
@@ -905,8 +907,8 @@ EOT;
                 <tr class="<?php echo FORM_TR_CLASS ?>">
                     <td colspan="2">
                         <a class="<?php echo FORM_BUTTON_CANCEL_CLASS ?>" href="#" target="_blank">Cancel</a>
-                        <a class="<?php echo FORM_BUTTON_RESET_CLASS ?>" href="#" target="_blank">Reset</a>                        
-                        <a class="<?php echo FORM_BUTTON_SAVE_CLASS ?>" href="#" target="_blank">Save</a>                        
+                        <a class="<?php echo FORM_BUTTON_RESET_CLASS ?>" href="#" target="_blank">Reset</a>
+                        <a class="<?php echo FORM_BUTTON_SAVE_CLASS ?>" href="#" target="_blank">Save</a>
                      </td>
                 </tr>
               </div>
@@ -956,7 +958,7 @@ EOT;
          */
         protected function _getSearchViewContentBlock($tableName, $fields){
             $name = $this->_getStrViewDirOfController($tableName);
-            
+
             $primaryKey = $this->_getPrimaryKey($fields);
             $params = array();
             foreach($primaryKey as $fieldKey){
@@ -1029,7 +1031,7 @@ EOT;
                 ";
                 if($pri!=$field['Field'])
                 $viewFieldsTmp[] = "<td>
-                  <div class='column-sort'> 
+                  <div class='column-sort'>
                      <a class='sort-up' title='Sort up' href='<?php echo \$this->url(array('order'=>'{$field['Field']}', 'by'=>'ASC')); ?>' <?php echo (\$this->order == '{$field['Field']}' && \$this->by == 'ASC') ? 'active' : '';?>'></a>
                      <a class='sort-down' title='Sort down' href='<?php echo \$this->url(array('order'=>'{$field['Field']}', 'by'=>'DESC')); ?>' <?php echo (\$this->order == '{$field['Field']}' && \$this->by == 'DESC') ? 'active' : '';?>'></a>
                   </div>
@@ -1039,7 +1041,7 @@ EOT;
 
             $viewFieldsTmp = implode("\n                ",$viewFieldsTmp);
             $actionAdd = '/' . $this->_getStrViewDirOfController($tableName).'/add';
-            
+
             return <<<EOT
     <script type="text/javascript">
         $(document).ready(function(){
@@ -1051,11 +1053,11 @@ EOT;
                  $('.delete-checkbox').attr('checked', '');
                  return false;
               });
-        
+
             $(".butAdd").click(function(){
                 window.location.href = "$actionAdd";
             });
-            
+
             $(".butDelete").click(function(){
                 if($("input#visible:checked").size() < 1){
                     alert('Please, select items');
@@ -1075,21 +1077,21 @@ EOT;
                     window.location.reload();
                 });
             });
-        
+
             $('#IsInvisible').change(function () {
                 var url =  '<?php echo \$this->url(array('IsInvisible'=>'tmpValue')); ?>';
                 var val = this.value;
                 url = url.replace('tmpValue', val);
                 window.location = url;
              });
-            
+
             $('#$name-form').submit(function(){
                 window.location.href = $(this).attr('action') + '/keyWord/' + encodeURI($('#keyWord').val()) + '/typeSearch/' + $('#typeSearch').val();
                 return false;
             });
         });
    </script>
-        
+
    <div class="content-table ">
       <div class="title-box">
         <div class="title-name">$title Manager</div>
@@ -1114,10 +1116,10 @@ EOT;
               </tr>
             </thead>
             <tbody>
-                 <?php 
+                 <?php
                      foreach(\$this->paginator as \$partial){
                          echo \$this->partial('_partials/$name/index.phtml', array('row'=>\$partial)
-                     } 
+                     }
                  ?>
             </tbody>
         </table>
@@ -1155,7 +1157,7 @@ EOT;
                 ";
                 if($pri!=$field['Field'] && $field['Field']!='IsInvisible')
                 $viewFieldsTmp[].= "<td align='center'><?php echo \$this->row->{$field['Field']}; ?></td>";
-                
+
                 if($field['Field']=='IsInvisible')
                 $viewFieldsTmp[] = "<td><?php echo (\$this->IsInvisible == 0) ? \"<div class='black-eye'></div>\" : \"<div class='gray-eye'></div>\"; ?></td>";
             }
@@ -1170,7 +1172,7 @@ EOT;
 <tr class="bg-tr">
     $viewFirstFieldTmp
     $viewFieldsTmp
-      
+
     <td width="5%">
         <a href="$actionUpdate" class="with-tip" title="Edit">
             <img src="images/icons/pencil.png">
@@ -1222,7 +1224,7 @@ EOT;
             $arrTmp[] = "}";
 
             $content = implode("\n", $arrTmp);
-            echo $content; die();
+//            echo $content; die();
             return $content;
         }
 
@@ -1774,40 +1776,40 @@ EOT;
 
                 $addContentTmp = $this->_getAddViewContent($tableName);
                 $addContentTmpBlock = $this->_getAddViewContentBlock($tableName);
-                
+
                 $updateContentTmp = $this->_getUpdateViewContent($tableName);
                 $updateContentTmpBlock = $this->_getUpdateViewContentBlock($tableName);
-                
-                $showAllContentTmp = $this->_getShowAllViewContent($tableName,$fields);                
+
+                $showAllContentTmp = $this->_getShowAllViewContent($tableName,$fields);
                 $showAllContentTmpBlock = $this->_getShowAllViewContentBlock($tableName,$fields);
-                
+
                 $searchContentTmpBlock = $this->_getSearchViewContentBlock($tableName,$fields);
-                
+
                 $showAllContentTmpPartial = $this->_getShowAllViewContentPartial($tableName,$fields);
-                
+
                 $formContentTmpBlock = $this->_getFormViewContentBlock($tableName);
-                
-                
+
+
                 $viewFileTmp = $this->_getStrViewDirOfController($tableName);
 
+                $partial = self::APPLICATION_DIR . '/views/scripts/_partials/'.$this->_getStrViewDirOfController($tableName);
                 //create dir for controller
 //                die($showAllContentTmpBlock);
                 /** create view file for controller add, update, show all*/
                 if(!is_dir($dirPath)) mkdir($dirPath , 0777);
-                    if(!file_exists($partial.'/add.phtml')) $this->_createFile($dirPath, 'add.phtml', $addContentTmpBlock);                        
-                    if(!file_exists($partial.'/edit.phtml')) $this->_createFile($dirPath, 'edit.phtml', $updateContentTmpBlock);                        
+                    if(!file_exists($partial.'/add.phtml')) $this->_createFile($dirPath, 'add.phtml', $addContentTmpBlock);
+                    if(!file_exists($partial.'/edit.phtml')) $this->_createFile($dirPath, 'edit.phtml', $updateContentTmpBlock);
                     if(!file_exists($partial.'/show-all.phtml')) $this->_createFile($dirPath, 'show-all.phtml', $showAllContentTmpBlock);
-                    
+
                     if(!is_dir($dirPath.'/block')) mkdir($dirPath.'/block' , 0777);
                         //if(!file_exists($partial.'/block/add-'.$viewFileTmp.'.phtml')) $this->_createFile($dirPath.'/block', 'add-'.$viewFileTmp.'.phtml', $addContentTmpBlock);
                        // if(!file_exists($partial.'/block/update-'.$viewFileTmp.'.phtml')) $this->_createFile($dirPath.'/block', 'update-'.$viewFileTmp.'.phtml', $updateContentTmpBlock);
                         if(!file_exists($partial.'/block/form-'.$viewFileTmp.'.phtml')) $this->_createFile($dirPath.'/block', 'form-'.$viewFileTmp.'.phtml', $formContentTmpBlock);
                         //if(!file_exists($partial.'/block/show-all-'.$viewFileTmp.'.phtml')) $this->_createFile($dirPath.'/block', 'show-all-'.$viewFileTmp.'.phtml', $showAllContentTmp);
                         if(!file_exists($partial.'/block/search-'.$viewFileTmp.'.phtml')) $this->_createFile($dirPath.'/block', 'search-'.$viewFileTmp.'.phtml', $searchContentTmpBlock);
-                        
-                $partial = self::APPLICATION_DIR . '/views/scripts/_partials/'.$this->_getStrViewDirOfController($tableName);
+
                 if(!is_dir($partial)) mkdir($partial , 0777);
-                if(!file_exists($partial.'/index.phtml')) $this->_createFile($partial, 'index.phtml', $showAllContentTmpPartial);                
+                if(!file_exists($partial.'/index.phtml')) $this->_createFile($partial, 'index.phtml', $showAllContentTmpPartial);
             }
         }
 

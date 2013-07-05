@@ -1,0 +1,38 @@
+    <div class="simple-form ">
+      <div class="title-box">
+        <div class="title-name">Update activity</div>
+        <div class="title-img"></div>
+      </div>
+      <div class="content-simple-form border">
+        <!--Jquery  Accordion -->
+        <div id="accordion">
+          <div >
+            <div class="simple-form-fieldset">
+              <h2 class="icon-delete"><?php echo $this->error ?></h2>
+              <div>
+                <?php echo $this->renderBlock('form-activity', $this); ?>
+                <tr class="<?php echo FORM_TR_CLASS ?>">
+                    <td colspan="2">
+                        <a class="<?php echo FORM_BUTTON_CANCEL_CLASS ?>" href="#" target="_blank">Cancel</a>
+                        <a class="<?php echo FORM_BUTTON_RESET_CLASS ?>" href="#" target="_blank">Reset</a>
+                        <a class="<?php echo FORM_BUTTON_SAVE_CLASS ?>" href="#" target="_blank">Save</a>
+                     </td>
+                </tr>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script type="text/javascript">
+        $('.btn_green').click(function () {
+            $('.btn.green').attr('disabled','disabled');
+            $('.activity-Form').submit();
+        });
+        $('.btn.red').click(function () {
+            window.location.href = '<?php echo $storage->url ?>';
+        });
+        $('.btn.blue').click(function () {
+            document.getElementById('activity-Form').reset();
+        });
+    </script>

@@ -2,7 +2,7 @@
 
 class Zend_View_Helper_SearchBar extends Zend_View_Helper_Abstract
 {
-    
+
 
     public function searchBar ($typeSearchs = null, $filters = null, $buttons = null, $params = null)
     {
@@ -20,24 +20,25 @@ class Zend_View_Helper_SearchBar extends Zend_View_Helper_Abstract
 
         if(!$filters){
             $filters = array(
-    
+
             );
         }
 
         if(!$buttons){
             $buttons = array(
-    
+
             );
         }
 
         $actionUrl = "/{$params['controller']}/{$params['action']}";
         $keywordsValue = isset($params['keywords'])?$params['keywords'] : '';
-        
+        $fieldSearch = isset($params['fieldsearch'])?$params['fieldsearch'] : '';
+
         $selectElement = new Zend_Form_Element_Select('fieldsearch');
         $selectElement->addMultiOptions($typeSearchs);
         $selectElement->setAttrib('class', 'input-medium');
-        $selectElement->setDecorators(array('ViewHelper'));     
-        $selectElement->setValue($params['fieldsearch']);
+        $selectElement->setDecorators(array('ViewHelper'));
+        $selectElement->setValue($fieldSearch);
 
         $filterElements = implode("\n",$filters);
         $buttonElements = implode("\n",$buttons);
@@ -59,7 +60,7 @@ class Zend_View_Helper_SearchBar extends Zend_View_Helper_Abstract
     public function getTemplate(){
         $t = '
 <div class="row-fluid show-grid">
-    <div class="span12">    
+    <div class="span12">
 
        <form class="well form-search quick-search-v2" method="post" action="%%ACTION_URL%%" name="quick-search"  >
 
@@ -81,9 +82,9 @@ class Zend_View_Helper_SearchBar extends Zend_View_Helper_Abstract
 
             <div class="pull-right">
                 %%BUTTONELEMENTS%%
-            </div>    
-        
-        </form>        
+            </div>
+
+        </form>
 
     </div>
 </div>

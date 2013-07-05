@@ -1,0 +1,34 @@
+    <div class="block-border">
+        <div class="form" style="float:left;">
+            <form action="/activity/show-all" id="activity-form">
+                <span class="small">Search for:</span>
+                    <input type="text"  name="keyWord" id="keyWord" class="small" value="<?php echo $this->keyWord;?>">
+                <span class="small">in</span>
+                <select name="typeSearch" id="typeSearch" class="small">
+                    <option value="all" <?php echo ($this->typeSearch == 'all') ? "selected" : ""; ?>>All</option>
+                    <option value='version' <?php echo ($this->typeSearch == 'version') ? 'selected' : ''; ?>>Version</option>
+                    <option value='action_date' <?php echo ($this->typeSearch == 'action_date') ? 'selected' : ''; ?>>Action_date</option>
+                    <option value='crud_action' <?php echo ($this->typeSearch == 'crud_action') ? 'selected' : ''; ?>>Crud_action</option>
+                    <option value='field_names' <?php echo ($this->typeSearch == 'field_names') ? 'selected' : ''; ?>>Field_names</option>
+                    <option value='new_value' <?php echo ($this->typeSearch == 'new_value') ? 'selected' : ''; ?>>New_value</option>
+                    <option value='object_name' <?php echo ($this->typeSearch == 'object_name') ? 'selected' : ''; ?>>Object_name</option>
+                    <option value='old_value' <?php echo ($this->typeSearch == 'old_value') ? 'selected' : ''; ?>>Old_value</option>
+                    <option value='user' <?php echo ($this->typeSearch == 'user') ? 'selected' : ''; ?>>User</option>
+                    <option value='class' <?php echo ($this->typeSearch == 'class') ? 'selected' : ''; ?>>Class</option>
+                    <option value='name' <?php echo ($this->typeSearch == 'name') ? 'selected' : ''; ?>>Name</option>
+                </select>
+
+                <button type="submit" id="search-command" class="submits">Search</button>
+                <button type="reset">Clear</button>
+            </form>
+        </div>
+
+        <div class="float-right">
+            <button type="button" class="red butDelete"><div class="images-icons-fugue-cross-circle"></div> Delete</button>
+            <button type="button" class="butAdd">Add</button>
+        </div>
+
+        <div style="clear:both;"></div>
+
+
+    </div>

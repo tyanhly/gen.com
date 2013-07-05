@@ -1,0 +1,154 @@
+    <script type="text/javascript">
+        $(document).ready(function(){
+             $('#select-all').click(function () {
+                $('.delete-checkbox').attr('checked', 'checked');
+                return false;
+             });
+             $('#unselect-all').click(function () {
+                 $('.delete-checkbox').attr('checked', '');
+                 return false;
+              });
+
+            $(".butAdd").click(function(){
+                window.location.href = "/activity/add";
+            });
+
+            $(".butDelete").click(function(){
+                if($("input#visible:checked").size() < 1){
+                    alert('Please, select items');
+                    return;
+                }
+                var inputs = $("input#visible");
+                var data = {};
+                inputs.each(function() {
+                    if(this.checked){
+                        data[this.name] = 1;
+                    }else{
+                        data[this.name] = 0;
+                    }
+                });
+                $.post('/activity/ajax-update-visible', data, function(response) {
+                    alert(response);
+                    window.location.reload();
+                });
+            });
+
+            $('#IsInvisible').change(function () {
+                var url =  '<?php echo $this->url(array('IsInvisible'=>'tmpValue')); ?>';
+                var val = this.value;
+                url = url.replace('tmpValue', val);
+                window.location = url;
+             });
+
+            $('#activity-form').submit(function(){
+                window.location.href = $(this).attr('action') + '/keyWord/' + encodeURI($('#keyWord').val()) + '/typeSearch/' + $('#typeSearch').val();
+                return false;
+            });
+        });
+   </script>
+
+   <div class="content-table ">
+      <div class="title-box">
+        <div class="title-name">Activity Manager</div>
+        <div class="title-img"></div>
+     </div>
+     <?php echo $this->renderBlock('search-activity', $this); ?>
+     <div class="block-controls">
+          <?php echo $this->paginationControl(
+                     $this->paginator,
+                    'Sliding',
+                    '_partials/pagination.phtml'
+                    );
+           ?>
+     </div>
+     <div class="table-border">
+        <table width="100%" border="0" cellspacing="0" cellpadding="0">
+            <thead>
+                <tr class="title-tr">
+                
+                <td>
+                  <div class='column-sort'>
+                     <a class='sort-up' title='Sort up' href='<?php echo $this->url(array('order'=>'version', 'by'=>'ASC')); ?>' <?php echo ($this->order == 'version' && $this->by == 'ASC') ? 'active' : '';?>'></a>
+                     <a class='sort-down' title='Sort down' href='<?php echo $this->url(array('order'=>'version', 'by'=>'DESC')); ?>' <?php echo ($this->order == 'version' && $this->by == 'DESC') ? 'active' : '';?>'></a>
+                  </div>
+                  version
+                </td>
+                <td>
+                  <div class='column-sort'>
+                     <a class='sort-up' title='Sort up' href='<?php echo $this->url(array('order'=>'action_date', 'by'=>'ASC')); ?>' <?php echo ($this->order == 'action_date' && $this->by == 'ASC') ? 'active' : '';?>'></a>
+                     <a class='sort-down' title='Sort down' href='<?php echo $this->url(array('order'=>'action_date', 'by'=>'DESC')); ?>' <?php echo ($this->order == 'action_date' && $this->by == 'DESC') ? 'active' : '';?>'></a>
+                  </div>
+                  action_date
+                </td>
+                <td>
+                  <div class='column-sort'>
+                     <a class='sort-up' title='Sort up' href='<?php echo $this->url(array('order'=>'crud_action', 'by'=>'ASC')); ?>' <?php echo ($this->order == 'crud_action' && $this->by == 'ASC') ? 'active' : '';?>'></a>
+                     <a class='sort-down' title='Sort down' href='<?php echo $this->url(array('order'=>'crud_action', 'by'=>'DESC')); ?>' <?php echo ($this->order == 'crud_action' && $this->by == 'DESC') ? 'active' : '';?>'></a>
+                  </div>
+                  crud_action
+                </td>
+                <td>
+                  <div class='column-sort'>
+                     <a class='sort-up' title='Sort up' href='<?php echo $this->url(array('order'=>'field_names', 'by'=>'ASC')); ?>' <?php echo ($this->order == 'field_names' && $this->by == 'ASC') ? 'active' : '';?>'></a>
+                     <a class='sort-down' title='Sort down' href='<?php echo $this->url(array('order'=>'field_names', 'by'=>'DESC')); ?>' <?php echo ($this->order == 'field_names' && $this->by == 'DESC') ? 'active' : '';?>'></a>
+                  </div>
+                  field_names
+                </td>
+                <td>
+                  <div class='column-sort'>
+                     <a class='sort-up' title='Sort up' href='<?php echo $this->url(array('order'=>'new_value', 'by'=>'ASC')); ?>' <?php echo ($this->order == 'new_value' && $this->by == 'ASC') ? 'active' : '';?>'></a>
+                     <a class='sort-down' title='Sort down' href='<?php echo $this->url(array('order'=>'new_value', 'by'=>'DESC')); ?>' <?php echo ($this->order == 'new_value' && $this->by == 'DESC') ? 'active' : '';?>'></a>
+                  </div>
+                  new_value
+                </td>
+                <td>
+                  <div class='column-sort'>
+                     <a class='sort-up' title='Sort up' href='<?php echo $this->url(array('order'=>'object_name', 'by'=>'ASC')); ?>' <?php echo ($this->order == 'object_name' && $this->by == 'ASC') ? 'active' : '';?>'></a>
+                     <a class='sort-down' title='Sort down' href='<?php echo $this->url(array('order'=>'object_name', 'by'=>'DESC')); ?>' <?php echo ($this->order == 'object_name' && $this->by == 'DESC') ? 'active' : '';?>'></a>
+                  </div>
+                  object_name
+                </td>
+                <td>
+                  <div class='column-sort'>
+                     <a class='sort-up' title='Sort up' href='<?php echo $this->url(array('order'=>'old_value', 'by'=>'ASC')); ?>' <?php echo ($this->order == 'old_value' && $this->by == 'ASC') ? 'active' : '';?>'></a>
+                     <a class='sort-down' title='Sort down' href='<?php echo $this->url(array('order'=>'old_value', 'by'=>'DESC')); ?>' <?php echo ($this->order == 'old_value' && $this->by == 'DESC') ? 'active' : '';?>'></a>
+                  </div>
+                  old_value
+                </td>
+                <td>
+                  <div class='column-sort'>
+                     <a class='sort-up' title='Sort up' href='<?php echo $this->url(array('order'=>'user', 'by'=>'ASC')); ?>' <?php echo ($this->order == 'user' && $this->by == 'ASC') ? 'active' : '';?>'></a>
+                     <a class='sort-down' title='Sort down' href='<?php echo $this->url(array('order'=>'user', 'by'=>'DESC')); ?>' <?php echo ($this->order == 'user' && $this->by == 'DESC') ? 'active' : '';?>'></a>
+                  </div>
+                  user
+                </td>
+                <td>
+                  <div class='column-sort'>
+                     <a class='sort-up' title='Sort up' href='<?php echo $this->url(array('order'=>'class', 'by'=>'ASC')); ?>' <?php echo ($this->order == 'class' && $this->by == 'ASC') ? 'active' : '';?>'></a>
+                     <a class='sort-down' title='Sort down' href='<?php echo $this->url(array('order'=>'class', 'by'=>'DESC')); ?>' <?php echo ($this->order == 'class' && $this->by == 'DESC') ? 'active' : '';?>'></a>
+                  </div>
+                  class
+                </td>
+                <td>
+                  <div class='column-sort'>
+                     <a class='sort-up' title='Sort up' href='<?php echo $this->url(array('order'=>'name', 'by'=>'ASC')); ?>' <?php echo ($this->order == 'name' && $this->by == 'ASC') ? 'active' : '';?>'></a>
+                     <a class='sort-down' title='Sort down' href='<?php echo $this->url(array('order'=>'name', 'by'=>'DESC')); ?>' <?php echo ($this->order == 'name' && $this->by == 'DESC') ? 'active' : '';?>'></a>
+                  </div>
+                  name
+                </td>
+                <td>Actions</td>
+              </tr>
+            </thead>
+            <tbody>
+                 <?php
+                     foreach($this->paginator as $partial){
+                         echo $this->partial('_partials/activity/index.phtml', array('row'=>$partial)
+                     }
+                 ?>
+            </tbody>
+        </table>
+     </div>
+     <div class="pagination">
+      <?php echo $this->currentResultItemNumber($this->paginator);?>
+    </div>
+   </div>

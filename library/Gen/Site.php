@@ -1,9 +1,11 @@
 <?php
 class Gen_Site{
-    const PROJECT_OUTPUT_PATH                   = '/server/staff/tung.ly/Zend/workspaces/DefaultWorkspace7/tmp/';    
+    //Config it
+    const PROJECT_OUTPUT_PATH                   = '/home/tyanhly/env/php-projects/';
+
     const MODEL_ABSTRACT_CLASS                  = 'Base_Db_Table_Abstract';
     const FORM_ABSTRACT_CLASS                   = 'Zend_Form';
-    
+
     const CONTROLLER_ABSTRACT_CLASS             = 'Zend_Controller_Action';
     const FORM_ELEMENT_TEXT             = 'text';
     const FORM_ELEMENT_INT              = 'int';
@@ -20,7 +22,7 @@ class Gen_Site{
     private $_padding3 = '            ';
     private $_padding4 = '                ';
     private $_padding5 = '                    ';
-    
+
     protected $_formElementTypes = array(
         self::FORM_ELEMENT_TEXT => array(
             'char',
@@ -49,7 +51,7 @@ class Gen_Site{
             'enum'
         ),
     );
-    
+
 
     private $_configs;
 
@@ -57,12 +59,12 @@ class Gen_Site{
     private $_schemaDb;
     private $_templatePath;
     private $_outputPath;
-    
+
     private $_tableNames;
     private $_fields = array();
     private $_defendentTables = array();
     private $_mapTables = array();
-    
+
     public  static $messages;
     public function __construct($configs){
 
@@ -74,7 +76,7 @@ class Gen_Site{
 
         $this->_configs      = $configs;
         $this->_db = Zend_Db::factory(
-            'PDO_MYSQL', 
+            'PDO_MYSQL',
             array(
                 'host'     => $configs['DatabaseHost'],
                 'dbname'   => $configs['DatabaseName'],
@@ -82,9 +84,9 @@ class Gen_Site{
                 'password' => $configs['DatabasePassword'],
             )
         );
-        
+
         $this->_schemaDb = Zend_Db::factory(
-            'PDO_MYSQL', 
+            'PDO_MYSQL',
             array(
                 'host'     => $configs['DatabaseHost'],
                 'dbname'   => 'information_schema',
@@ -94,7 +96,7 @@ class Gen_Site{
         );
 //        Zend_Db_Table::setDefaultAdapter($db);
     }
-    
+
     public function genAll(){
         $this->genModels();
         $this->genControllers();
@@ -103,23 +105,26 @@ class Gen_Site{
         $this->genApplicationIni();
         $this->genNavigationIni();
     }
-    
+
     public function deploy(){
         $this->copyFiles();
         $this->genAll();
     }
-    
-    public function copyFiles(){        
+
+    public function copyFiles(){
         self::putMsg("<h2>Copy Files</h2>");
-        $command = "cp -rf {$this->_templatePath}/project {$this->_outputPath}";
+        $command = "cp -rf {$this->_templatePath}/project/* {$this->_outputPath}";
+        self::putMsg("Command: $command");
+        $msg = shell_exec($command);
+        $command = "rm -rf `find {$this->_outputPath} -name '.svn'";
         $msg = shell_exec($command);
         self::putMsg("Command: $command");
-    }    
-    
+    }
+
 
     public function genNavigationIni(){
         self::putMsg("<h2>Create navigation.ini</h2>");
-        
+
         $dirPath = $this->_getNavigationDir();
         $this->_createDirStructure($dirPath);
         $itemTemplate = '
@@ -139,7 +144,7 @@ navigation.%%TABLE_NAME%%.pages.%%TABLE_NAME%%.visible    = true
         $tableNames = $this->_getTableNames();
         $tmpArray = array('[run]');
         foreach ($tableNames as $tableName){
-            
+
             $variables = array(
                 '%%TABLE_NAME%%' => $tableName,
                 '%%NAV_NAME%%'   => $this->_camelCaseToSpace($tableName),
@@ -147,28 +152,28 @@ navigation.%%TABLE_NAME%%.pages.%%TABLE_NAME%%.visible    = true
                 '%%CONTROLLER%%' => $this->_camelCaseToDash($tableName),
                 '%%ACTION%%'     => 'show-' . $this->_camelCaseToDash($tableName),
             );
-            
+
             $tmpArray[] = str_replace(array_keys($variables), $variables, $itemTemplate);
         }
-        
+
         $this->_createFile($dirPath, 'navigation.ini', implode("\n",$tmpArray));
     }
-    
+
     public function genApplicationIni(){
         self::putMsg("<h2>Create application.ini</h2>");
-        
+
         $dirPath = $this->_getConfigsDir();
         $this->_createDirStructure($dirPath);
 
         $applicationTemplatePath = $this->_templatePath . '/application.ini.template';
-        
+
         $variables = array(
             '%%HOST%%'         => $this->_configs['DatabaseHost'],
             '%%USERNAME%%'     => $this->_configs['DatabaseUsername'],
             '%%PASSWORD%%'     => $this->_configs['DatabasePassword'],
             '%%DBNAME%%'       => $this->_configs['DatabaseName'],
         );
-        
+
         $content = file_get_contents($applicationTemplatePath);
         $content = str_replace(array_keys($variables), $variables, $content);
         $this->_createFile($dirPath, 'application.ini', $content);
@@ -195,13 +200,13 @@ navigation.%%TABLE_NAME%%.pages.%%TABLE_NAME%%.visible    = true
         //if $field['Type'] would not been defined in _formElementTypes.
         return self::FORM_ELEMENT_TEXT;
     }
-   
+
     public function genModels(){
         self::putMsg("<h2>Create Models</h2>");
         $dirPath = $this->_getModelDir();
         $this->_createDirStructure($dirPath);
         $tableNames = $this->_getTableNames();
-        
+
 
         foreach ($tableNames as $tableName){
             //create file Model
@@ -209,14 +214,14 @@ navigation.%%TABLE_NAME%%.pages.%%TABLE_NAME%%.visible    = true
             $content = $this->_getContentModel($tableName,$fields);
             $this->_createFile($dirPath, ucfirst($tableName) . '.php', $content);
         }
-    }  
-     
+    }
+
     public function genForms(){
         self::putMsg("<h2>Create Forms</h2>");
         $dirPath = $this->_getFormDir();
         $this->_createDirStructure($dirPath);
         $tableNames = $this->_getTableNames();
-        
+
 
         foreach ($tableNames as $tableName){
             //create file Model
@@ -225,50 +230,50 @@ navigation.%%TABLE_NAME%%.pages.%%TABLE_NAME%%.visible    = true
             $this->_createFile($dirPath, ucfirst($tableName) . '.php', $content);
         }
     }
-    
+
     public function genViews(){
-        
+
         self::putMsg("<h2>Create Views</h2>");
         $tableNames = $this->_getTableNames();
 
         foreach ($tableNames as $tableName){
-            
+
             $scriptDir   = $this->_getScriptDir($tableName);
             $partialDir  = $this->_getPartialDir($tableName);
-                
+
             $this->_createDirStructure($partialDir);
-            
+
             $fields = $this->_getFieldsInTable($tableName);
-            
-            
+
+
             $showAllContent   = $this->_getContentViewShowAll($tableName,$fields);
             $this->_createFile($scriptDir, $this->_getViewShowAllFileName($tableName), $showAllContent);
-                        
+
             $showAllRecordContent   = $this->_getViewShowAllRecordContent($tableName,$fields);
             $this->_createFile($partialDir, $this->_getViewShowRecordFileName($tableName), $showAllRecordContent);
-             
+
             $updateContent    = $this->_getViewUpdateContent($tableName,$fields);
             $this->_createFile($scriptDir, $this->_getViewUpdateFileName($tableName), $updateContent);
-             
-            $addContent       = $this->_getViewAddContent($tableName,$fields);            
+
+            $addContent       = $this->_getViewAddContent($tableName,$fields);
             $this->_createFile($scriptDir, $this->_getViewAddFileName($tableName), $addContent);
-            
+
         }
     }
 
-    private function _getScriptDir($tableName){        
+    private function _getScriptDir($tableName){
         $dirPath = $this->_getViewDir();
         $viewDirName = $this->_camelCaseToDash($tableName);
         $t = "$dirPath/$viewDirName";
 //        echo $t;
-        return $t; 
+        return $t;
     }
     private function _getPartialDir($tableName){
-        
+
         $dirPath = $this->_getScriptDir($tableName);
         $t = "$dirPath/_partial";
 //        echo $t;die;
-        return $t; 
+        return $t;
     }
     private function _getViewShowAllFileName($tableName){
         $t = "show-" . $this->_camelCaseToDash($tableName) . '.phtml';
@@ -288,26 +293,26 @@ navigation.%%TABLE_NAME%%.pages.%%TABLE_NAME%%.visible    = true
     }
 
     private function _camelCaseToDash($string){
-        
+
         $filter = new Zend_Filter_Word_CamelCaseToDash();
         $string = $filter->filter($string);
         return strtolower($string);
-        
+
     }
 
     private function _camelCaseToSpace($string){
         $filter = new Zend_Filter_Word_CamelCaseToSeparator();
         $string = $filter->filter($string);
         return $string;
-        
+
     }
-    
+
     public function genControllers(){
         self::putMsg("<h2>Create Controllers</h2>");
         $dirPath = $this->_getControllerDir();
         $this->_createDirStructure($dirPath);
         $tableNames = $this->_getTableNames();
-        
+
 
         foreach ($tableNames as $tableName){
             //create file Model
@@ -321,32 +326,32 @@ navigation.%%TABLE_NAME%%.pages.%%TABLE_NAME%%.visible    = true
 //        Zend_Debug::dump($this->_configs);die;
         return $this->_outputPath . '/application/configs/';
     }
-    
+
     private function _getNavigationDir(){
 //        Zend_Debug::dump($this->_configs);die;
         return $this->_outputPath . '/application/layouts/';
     }
-    
+
     private function _getModelDir(){
 //        Zend_Debug::dump($this->_configs);die;
         return $this->_outputPath . '/application/models/' . $this->_configs['Schema'];
     }
-    
+
     private function _getFormDir(){
 //        Zend_Debug::dump($this->_configs);die;
         return $this->_outputPath . '/application/forms/' . $this->_configs['Schema'];
     }
-    
+
     private function _getViewDir(){
 //        Zend_Debug::dump($this->_configs);die;
         return $this->_outputPath . '/application/views/scripts';
     }
-    
+
     private function _getControllerDir(){
 //        Zend_Debug::dump($this->_configs);die;
         return $this->_outputPath . '/application/controllers';
     }
-    
+
     /**
      * This function called from DbTable creating
      * @param string $tableName
@@ -364,10 +369,10 @@ navigation.%%TABLE_NAME%%.pages.%%TABLE_NAME%%.visible    = true
 
         return $strReferenceMap;
     }
-    
-    
+
+
     /**
-     * @desc return foreign key column 
+     * @desc return foreign key column
      *       and referenced column
      * @param string $tableName
      * @param string $referencedTableName
@@ -390,7 +395,7 @@ navigation.%%TABLE_NAME%%.pages.%%TABLE_NAME%%.visible    = true
         return $tables;
 
     }
-    
+
     /** @desc this function is used in _getFormElement<type>Content
      * @param string $variableName
      * @param array $field
@@ -402,7 +407,7 @@ navigation.%%TABLE_NAME%%.pages.%%TABLE_NAME%%.visible    = true
         }
         return "{$variableName}->setRequired(false);";
     }
-    
+
 
     protected function _getStrMultiOptions($type){
         $arrTmp = array();
@@ -432,15 +437,15 @@ navigation.%%TABLE_NAME%%.pages.%%TABLE_NAME%%.visible    = true
         $arrTmp = array();
 
         $arrTmp[] = "$variableName = new Zend_Form_Element_Text('{$field['Field']}');";
-        
+
         $arrTmp[] = "{$variableName}->setLabel('{$field['Field']}');";
 
         $arrTmp[] = "{$variableName}->addFilter('StringTrim');";
 
         $arrTmp[] = $this->_getStrRequiredForElementForm($variableName, $field);
-        
+
         $arrTmp[] = "{$variableName}->setDecorators(array('ViewHelper'));";
-        
+
         $arrTmp[] = "\$this->addElement($variableName);\n";
 
         $content = implode("\n" . $this->_padding2 , $arrTmp);
@@ -465,9 +470,9 @@ navigation.%%TABLE_NAME%%.pages.%%TABLE_NAME%%.visible    = true
         $arrTmp[] = "{$variableName}->addValidator('{$type}');";
 
         $arrTmp[] = $this->_getStrRequiredForElementForm($variableName, $field);
-        
+
         $arrTmp[] = "{$variableName}->setDecorators(array('ViewHelper'));";
-        
+
         $arrTmp[] = "\$this->addElement($variableName);\n";
 
         $content = implode("\n" . $this->_padding2, $arrTmp);
@@ -492,9 +497,9 @@ navigation.%%TABLE_NAME%%.pages.%%TABLE_NAME%%.visible    = true
         $arrTmp[] = "{$variableName}->addValidator('Date');";
 
         $arrTmp[] = $this->_getStrRequiredForElementForm($variableName, $field);
-        
+
         $arrTmp[] = "{$variableName}->setDecorators(array('ViewHelper'));";
-        
+
         $arrTmp[] = "\$this->addElement($variableName);\n";
 
         $content = implode("\n" . $this->_padding2, $arrTmp);
@@ -514,9 +519,9 @@ navigation.%%TABLE_NAME%%.pages.%%TABLE_NAME%%.visible    = true
         $arrTmp[] =  "$variableName = new Zend_Form_Element_Textarea('{$field['Field']}');";
         $arrTmp[] = "{$variableName}->setLabel('{$field['Field']}');";
         $arrTmp[] = $this->_getStrRequiredForElementForm($variableName, $field);
-        
+
         $arrTmp[] = "{$variableName}->setDecorators(array('ViewHelper'));";
-        
+
         $arrTmp[] = "\$this->addElement($variableName);\n";
 
         $content = implode("\n"  . $this->_padding2, $arrTmp);
@@ -541,9 +546,9 @@ navigation.%%TABLE_NAME%%.pages.%%TABLE_NAME%%.visible    = true
         $arrTmp[] = "{$variableName}->setMultiOptions({$strMultiOption});";
 
         $arrTmp[] = $this->_getStrRequiredForElementForm($variableName, $field);
-        
+
         $arrTmp[] = "{$variableName}->setDecorators(array('ViewHelper'));";
-        
+
         $arrTmp[] = "\$this->addElement($variableName);\n";
 
         $content = implode("\n" . $this->_padding2, $arrTmp);
@@ -567,9 +572,9 @@ navigation.%%TABLE_NAME%%.pages.%%TABLE_NAME%%.visible    = true
         $arrTmp[] = "{$variableName}->setMultiOptions({$strMultiOption});";
 
         $arrTmp[] = $this->_getStrRequiredForElementForm($variableName, $field);
-        
+
         $arrTmp[] = "{$variableName}->setDecorators(array('ViewHelper'));";
-        
+
         $arrTmp[] = "\$this->addElement($variableName);\n";
 
         $content = implode("\n" . $this->_padding2, $arrTmp);
@@ -584,9 +589,9 @@ navigation.%%TABLE_NAME%%.pages.%%TABLE_NAME%%.visible    = true
         $variableName = "$" . lcfirst($field['Field']);
         $arrTmp = array();
         $arrTmp[] = "$variableName = new Zend_Form_Element_Hidden('{$field['Field']}');";
-        
+
         $arrTmp[] = "{$variableName}->setDecorators(array('ViewHelper'));";
-        
+
         $arrTmp[] = "\$this->addElement($variableName);\n";
 
         $content = implode("\n" . $this->_padding2, $arrTmp);
@@ -621,7 +626,7 @@ navigation.%%TABLE_NAME%%.pages.%%TABLE_NAME%%.visible    = true
             break;
         }
     }
-    
+
     private function _getFormElementContents($fields){
         $tmpArray = array();
         foreach ($fields as $field) {
@@ -629,7 +634,7 @@ navigation.%%TABLE_NAME%%.pages.%%TABLE_NAME%%.visible    = true
         }
         return implode("\n" . $this->_padding2, $tmpArray);
     }
-        
+
     private function _getContentForm($tableName,$fields){
         $modelTemplatePath = $this->_templatePath . '/form.template';
         $fields = $this->_getFieldsInTable($tableName);
@@ -639,12 +644,12 @@ navigation.%%TABLE_NAME%%.pages.%%TABLE_NAME%%.visible    = true
             '%%FORM_ABSTRACT_CLASS%%'   => self::FORM_ABSTRACT_CLASS,
             '%%FORM_ELEMENTS%%'         => $this->_getFormElementContents($fields),
         );
-        
+
         $content = file_get_contents($modelTemplatePath);
         $content = str_replace(array_keys($variables), $variables, $content);
         return $content;
     }
-    
+
     private function _getContentModel($tableName,$fields){
         $modelTemplatePath = $this->_templatePath . '/model.template';
         $fields = $this->_getFieldsInTable($tableName);
@@ -661,13 +666,13 @@ navigation.%%TABLE_NAME%%.pages.%%TABLE_NAME%%.visible    = true
             '%%SEARCH_FIELDS%%'          => $this->_getSearchFields($tableName),
             '%%SORT_FIELDS%%'            => $this->_getSortFields($tableName),
         );
-        
+
         $content = file_get_contents($modelTemplatePath);
         $content = str_replace(array_keys($variables), $variables, $content);
         return $content;
     }
 
-    
+
     private function _getContentController($tableName,$fields){
         $modelTemplatePath = $this->_templatePath . '/controller.template';
         $fields = $this->_getFieldsInTable($tableName);
@@ -681,14 +686,14 @@ navigation.%%TABLE_NAME%%.pages.%%TABLE_NAME%%.visible    = true
             '%%FORM_CLASS%%'                  => $this->_getFormClass($tableName),
             '%%MODEL_PRIMARY%%'               => $this->_getPrimaryKey($fields),
         );
-        
+
         $content = file_get_contents($modelTemplatePath);
         $content = str_replace(array_keys($variables), $variables, $content);
         return $content;
     }
-    
-    
-    
+
+
+
     private function _getContentViewShowAll($tableName){
         $modelTemplatePath = $this->_templatePath . '/view.show-all.template';
         $fields = $this->_getFieldsInTable($tableName);
@@ -699,12 +704,12 @@ navigation.%%TABLE_NAME%%.pages.%%TABLE_NAME%%.visible    = true
             '%%TH_GROUP%%'                    => $this->_getThGroup($fields),
             '%%PARTIAL_PATH%%'                => $this->_getPartialFilePath($tableName),
         );
-        
+
         $content = file_get_contents($modelTemplatePath);
         $content = str_replace(array_keys($variables), $variables, $content);
         return $content;
     }
-    
+
     private function _getViewShowAllRecordContent($tableName){
         $modelTemplatePath = $this->_templatePath . '/view.show-all.record.template';
         $fields = $this->_getFieldsInTable($tableName);
@@ -715,12 +720,12 @@ navigation.%%TABLE_NAME%%.pages.%%TABLE_NAME%%.visible    = true
             '%%UPDATE_PATH%%'                => $this->_getUpdateLink($tableName, $fields),
             '%%DELETE_PATH%%'                => $this->_getDeleteLink($tableName, $fields),
         );
-        
+
         $content = file_get_contents($modelTemplatePath);
         $content = str_replace(array_keys($variables), $variables, $content);
         return $content;
     }
-    
+
     private function _getViewUpdateContent($tableName){
         $modelTemplatePath = $this->_templatePath . '/view.update.template';
         $fields = $this->_getFieldsInTable($tableName);
@@ -730,12 +735,12 @@ navigation.%%TABLE_NAME%%.pages.%%TABLE_NAME%%.visible    = true
             '%%SHOW_ALL_ACTION%%'             => "show-" . $this->_camelCaseToDash($tableName),
             '%%FORM_ELEMENTS%%'               => $this->_getFormElements($fields)
         );
-        
+
         $content = file_get_contents($modelTemplatePath);
         $content = str_replace(array_keys($variables), $variables, $content);
         return $content;
     }
-    
+
     private function _getViewAddContent($tableName){
         $modelTemplatePath = $this->_templatePath . '/view.add.template';
         $fields = $this->_getFieldsInTable($tableName);
@@ -745,31 +750,31 @@ navigation.%%TABLE_NAME%%.pages.%%TABLE_NAME%%.visible    = true
             '%%SHOW_ALL_ACTION%%'             => "show-" . $this->_camelCaseToDash($tableName),
             '%%FORM_ELEMENTS%%'               => $this->_getFormElements($fields)
         );
-        
+
         $content = file_get_contents($modelTemplatePath);
         $content = str_replace(array_keys($variables), $variables, $content);
         return $content;
     }
-    
+
     private function _getFormElements($fields){
         $tmpArr = array();
         foreach($fields as $field){
             $tmpArr[] = "<?php echo \$this->renderFormElement(\$form->{$field['Field']});?>";
-        }    
+        }
         return implode("\n{$this->_padding4}", $tmpArr);
     }
-    
+
     private function _getTdGroup($fields){
-        
+
         $tmpArr = array();
         foreach($fields as $field){
             $tmpArr[] = "\n{$this->_padding1}<td>"
                       . "\n{$this->_padding2}<?php echo \$dataRow->{$field['Field']};?>"
                       . "\n{$this->_padding1}</td>";
-        }    
+        }
         return implode("\n", $tmpArr);
     }
-    
+
     private function _getUpdateLink($tableName, $fields){
         $viewDirName = $this->_camelCaseToDash($tableName);
         $primaryField = $this->_getPrimaryKey($fields);
@@ -783,17 +788,17 @@ navigation.%%TABLE_NAME%%.pages.%%TABLE_NAME%%.visible    = true
         $t = "/$viewDirName/delete-$viewDirName/id/<?php echo \$dataRow->{$primaryField}; ?>";
         return $t;
     }
-    
-    
-    
-    
-    
-    
+
+
+
+
+
+
     private function _getPartialFilePath($tableName){
         $t = $this->_camelCaseToDash($tableName) . '/_partial/' . $this->_getViewShowAllFileName($tableName);
         return $t;
     }
-    
+
     private function _getThGroup($fields){
         $tmpArr = array();
         foreach($fields as $field){
@@ -801,16 +806,16 @@ navigation.%%TABLE_NAME%%.pages.%%TABLE_NAME%%.visible    = true
         }
         return implode("\n{$this->_padding5}", $tmpArr);
     }
-    
+
     private function _getTypeSearchs($fields){
         $tmpArr = array();
         foreach($fields as $field){
             $t = str_pad("'{$field['Field']}'",30);
-            $tmpArr[] = "{$t} => \$this->text('{$field['Field']}', false),";            
+            $tmpArr[] = "{$t} => \$this->text('{$field['Field']}', false),";
         }
         return implode("\n{$this->_padding1}", $tmpArr);
     }
-    
+
     /**
      * getPrimaryKey from table fields
      *
@@ -827,7 +832,7 @@ navigation.%%TABLE_NAME%%.pages.%%TABLE_NAME%%.visible    = true
         $priKeys .= ")";
         return $priKeys;
     }
-    
+
     protected function _getPrimaryKey($fields){
 
         foreach($fields as $field){
@@ -838,7 +843,7 @@ navigation.%%TABLE_NAME%%.pages.%%TABLE_NAME%%.visible    = true
 
         return null;
     }
-    
+
     private function _getSearchFields($tableName){
         $fields = $this->_getFieldsInTable($tableName);
         $tmpArr = array();
@@ -849,7 +854,7 @@ navigation.%%TABLE_NAME%%.pages.%%TABLE_NAME%%.visible    = true
         $result = implode($glue, $tmpArr);
         return $result;
     }
-    
+
     private function _getSortFields($tableName){
         $fields = $this->_getFieldsInTable($tableName);
         $tmpArr = array();
@@ -860,20 +865,20 @@ navigation.%%TABLE_NAME%%.pages.%%TABLE_NAME%%.visible    = true
         $result = implode($glue, $tmpArr);
         return $result;
     }
-    
+
     private function _getStrSortFieldItem($tableName, $field){
         $param = str_pad("\"{$field['Field']}_Sort\"", 30);
         $tableField = str_pad($tableName . '.' . $field['Field'], 30);
-        
+
         $t = "{$param} => \"$tableField {{param}}\",";
-        
+
         return $t;
     }
 
     private function _getStrSearchFieldItem($tableName, $field){
         $param = str_pad("\"{$field['Field']}\"", 30);
         $tableField = str_pad("{$tableName}.{$field['Field']}", 30);
-        
+
         switch ($this->_getFormElementType($field)) {
             case self::FORM_ELEMENT_INT:
             case self::FORM_ELEMENT_HIDDEN:
@@ -887,7 +892,7 @@ navigation.%%TABLE_NAME%%.pages.%%TABLE_NAME%%.visible    = true
             case self::FORM_ELEMENT_TEXTAREA:
                 $t = "{$param} => \"{$tableField} LIKE '%{{param}}%'\",";
             break;
-            
+
             default:
                 ;
             break;
@@ -900,7 +905,7 @@ navigation.%%TABLE_NAME%%.pages.%%TABLE_NAME%%.visible    = true
      */
     private function _getReferencedTableNames($tableName){
         if(!isset($this->_mapTables[$tableName])){
-          
+
             $sql = "SELECT DISTINCT KEY_COLUMN_USAGE.REFERENCED_TABLE_NAME
                     FROM TABLE_CONSTRAINTS
                     INNER JOIN KEY_COLUMN_USAGE
@@ -909,13 +914,13 @@ navigation.%%TABLE_NAME%%.pages.%%TABLE_NAME%%.visible    = true
                     WHERE TABLE_CONSTRAINTS.TABLE_SCHEMA = '{$this->_configs['DatabaseName']}'
                       AND TABLE_CONSTRAINTS.CONSTRAINT_TYPE = 'FOREIGN KEY'
                       AND KEY_COLUMN_USAGE.TABLE_NAME = '$tableName'";
-    
+
             $this->_mapTables[$tableName] = $this->_schemaDb->fetchCol($sql);
         }
 //        Zend_Debug::dump($tables);die;
         return $this->_mapTables[$tableName];
     }
-    
+
     /**
      * This function called from getStrDependentClasses
      * @param string $tableName
@@ -923,7 +928,7 @@ navigation.%%TABLE_NAME%%.pages.%%TABLE_NAME%%.visible    = true
      */
     private function _getDependentTables($tableName){
         if(!isset($this->_defendentTables[$tableName])){
-    
+
             $sql = "SELECT TABLE_CONSTRAINTS.TABLE_NAME
                     FROM TABLE_CONSTRAINTS
                     INNER JOIN REFERENTIAL_CONSTRAINTS
@@ -933,15 +938,15 @@ navigation.%%TABLE_NAME%%.pages.%%TABLE_NAME%%.visible    = true
                       AND TABLE_CONSTRAINTS.CONSTRAINT_TYPE = 'FOREIGN KEY'
                       AND REFERENTIAL_CONSTRAINTS.REFERENCED_TABLE_NAME = '$tableName'";
     //        die('<pre>' .$sql);
-    
+
             $this->_defendentTables[$tableName] = $this->_schemaDb->fetchCol($sql);
         }
 //        Zend_Debug::dump($tables);die;
         return $this->_defendentTables[$tableName];
     }
-    
 
-    
+
+
     /**
      * @param string $tableName
      * @param string $referencedTableName
@@ -963,7 +968,7 @@ navigation.%%TABLE_NAME%%.pages.%%TABLE_NAME%%.visible    = true
         }
         return $strResult;
     }
-    
+
     /**
      * @param string $tableName
      * @return string
@@ -993,7 +998,7 @@ navigation.%%TABLE_NAME%%.pages.%%TABLE_NAME%%.visible    = true
      * @desc    get all fields in table named tableName
      */
     protected function _getFieldsInTable($tableName){
-        
+
         if(!isset($this->_fields[$tableName])){
             $sql = "SHOW COLUMNS FROM `{$tableName}`";
             $this->_fields[$tableName] = $this->_db->fetchAll($sql);
@@ -1001,7 +1006,7 @@ navigation.%%TABLE_NAME%%.pages.%%TABLE_NAME%%.visible    = true
         }
         return $this->_fields[$tableName];
     }
-    
+
     public static function putMsg($string){
         self::$messages[] = $string;
     }
@@ -1013,19 +1018,20 @@ navigation.%%TABLE_NAME%%.pages.%%TABLE_NAME%%.visible    = true
         }
         return $t;
     }
-    
-    
+
+
     /**
      * @desc    create directory and set mod 0777 for all sub dir of it
      * @param   string $dirPath
      */
     protected function _createDirStructure($dirPath){
         if(!file_exists($dirPath)){
+//            echo "Create dir: " . $dirPath;
             mkdir($dirPath, 0744, true) or die('cannot create dir');
         }
     }
-    
-    
+
+
     /**
      * @desc create File
      * @param string $objectDirName,    ex: 'models', 'forms', 'models/DbTable'
@@ -1062,21 +1068,21 @@ navigation.%%TABLE_NAME%%.pages.%%TABLE_NAME%%.visible    = true
         }
         fclose($fp);
 
-        
+
         self::putMsg("Create file success : $filePath");
         return true;
     }
-    
+
     private function _getModelClass($tableName){
         $t = 'Application_Model_' . $this->_configs['Schema'] . "_$tableName";
         return $t;
     }
-    
+
     private function _getControllerClass($tableName){
         $t = "{$tableName}Controller";
         return $t;
-    }   
-    
+    }
+
     private function _getFormClass($tableName){
         $t = 'Application_Form_' . $this->_configs['Schema'] . "_$tableName";
         return $t;
