@@ -104,23 +104,46 @@ class Gen_Site{
         $this->genForms();
         $this->genApplicationIni();
         $this->genNavigationIni();
+        $this->genInstallDoc();
     }
 
     public function deploy(){
-        $this->copyFiles();
         $this->genAll();
+        $this->copyFiles();
     }
 
     public function copyFiles(){
         self::putMsg("<h2>Copy Files</h2>");
         $command = "cp -rf {$this->_templatePath}/project/* {$this->_outputPath}";
-        self::putMsg("Command: $command");
+        self::putMsg("Command: $command");        
         $msg = shell_exec($command);
+        
         $command = "rm -rf `find {$this->_outputPath} -name '.svn'";
-        $msg = shell_exec($command);
         self::putMsg("Command: $command");
+        $msg = shell_exec($command);
+        
+        $command = "chmod 777 -R {$this->_outputPath}";
+        self::putMsg("Command: $command");
+        $msg = shell_exec($command);
     }
-
+    
+    public function genInstallDoc(){
+        self::putMsg("<h2>Create install file guide</h2>");
+    
+        $dirPath = $this->_outputPath;
+//         $this->_createDirStructure($dirPath);
+    
+        $applicationTemplatePath = $this->_templatePath . '/install.txt.template';
+    
+        $variables = array(
+                '%%ServerName%%'         => $this->_configs['Site'],
+                '%%DocumentRoot%%'     => self::PROJECT_OUTPUT_PATH . $this->_configs['Site'] . "/public",
+        );
+    
+        $content = file_get_contents($applicationTemplatePath);
+        $content = str_replace(array_keys($variables), $variables, $content);
+        $this->_createFile($dirPath, 'install.txt', $content);
+    }
 
     public function genNavigationIni(){
         self::putMsg("<h2>Create navigation.ini</h2>");
@@ -203,10 +226,11 @@ navigation.%%TABLE_NAME%%.pages.%%TABLE_NAME%%.visible    = true
 
     public function genModels(){
         self::putMsg("<h2>Create Models</h2>");
+
+//         Zend_Debug::dump($formData);die;
         $dirPath = $this->_getModelDir();
         $this->_createDirStructure($dirPath);
         $tableNames = $this->_getTableNames();
-
 
         foreach ($tableNames as $tableName){
             //create file Model
@@ -1027,7 +1051,7 @@ navigation.%%TABLE_NAME%%.pages.%%TABLE_NAME%%.visible    = true
     protected function _createDirStructure($dirPath){
         if(!file_exists($dirPath)){
 //            echo "Create dir: " . $dirPath;
-            mkdir($dirPath, 0744, true) or die('cannot create dir');
+            mkdir($dirPath, 0777, true) or die('cannot create dir');
         }
     }
 

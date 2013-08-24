@@ -78,8 +78,8 @@ class Base_Db_Table_Abstract extends Zend_Db_Table {
             $newRow = $this->createRow($data);
             return $newRow->save();
         } catch (Exception $exc) {
-            if ( in_array(APPLICATION_ENV, array('developer')) ){
-                Zend_Debug::dump($exc);
+            if ( in_array(APPLICATION_ENV, array('development')) ){
+                echo $exc->getMessage();
                 die();
             }
             return false;
@@ -97,8 +97,8 @@ class Base_Db_Table_Abstract extends Zend_Db_Table {
             $oldRow->setFromArray($data);
             return $oldRow->save();
         } catch (Exception $exc) {
-            if ( in_array(APPLICATION_ENV, array('developer')) ){
-                Zend_Debug::dump($exc);
+            if ( in_array(APPLICATION_ENV, array('development')) ){
+                echo $exc->getMessage();
                 die();
             }
             return false;

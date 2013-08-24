@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Controller Index
  *
@@ -9,64 +10,66 @@
  */
 class IndexController extends Zend_Controller_Action
 {
+
     /**
      * (non-PHPdoc)
+     * 
      * @see Zend_Controller_Action::init()
      */
-    public function init () {}
+    public function init ()
+    {}
+
     /**
      * Home page - Main Panel
-     *
      */
-    public function indexAction() {
-//        die('dfdf');
+    public function indexAction ()
+    {
+        // die('dfdf');
         $form = new Application_Form_Sites();
         
-        /* Proccess data post*/
-        if($this->_request->isPost()) {
+        /* Proccess data post */
+        if ($this->_request->isPost()) {
             $formData = $this->_request->getPost();
-//            Zend_Debug::dump($formData);die;
-
-            if($form->isValid($formData)) {
+            // Zend_Debug::dump($formData);die;
+            // die;
+            if ($form->isValid($formData)) {
                 
                 $genSite = new Gen_Site($formData);
+                // Zend_Debug::dump($genSite);die;
                 
                 switch ($formData['SubmitGen']) {
                     case 'Model':
                         $genSite->genModels();
-                    break;
+                        break;
                     case 'Controller':
                         $genSite->genControllers();
-                    break;
+                        break;
                     case 'Form':
                         $genSite->genForms();
-                    break;
+                        break;
                     case 'View':
                         $genSite->genViews();
-                    break;
+                        break;
                     case 'ApplicationIni':
                         $genSite->genApplicationIni();
-                    break;
+                        break;
                     case 'NavigationIni':
                         $genSite->genNavigationIni();
-                    break;
+                        break;
                     case 'All':
                         $genSite->genAll();
-                    break;
+                        break;
                     case 'Deploy':
                         $genSite->deploy();
-                    break;
-//                    
-//                    default:
-//                        $genSite->genAll();
-//                    break;
+                        break;
+                    //
+                    // default:
+                    // $genSite->genAll();
+                    // break;
                 }
             }
         }
-//        $form->populate($this->view->form->getValues());
+        // $form->populate($this->view->form->getValues());
         $this->view->form = $form;
     }
-
-
-
 }
