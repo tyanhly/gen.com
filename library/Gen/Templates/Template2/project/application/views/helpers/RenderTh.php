@@ -22,14 +22,18 @@ class Zend_View_Helper_RenderTh extends Zend_View_Helper_Abstract
         $descActive = (strtolower($this->view->$nameDbSort) == 'desc') ? "active" : '';
 
         echo "<th>
-                 <div class='row-fluid show-grid' style='position:relative; height:36px; vertical-align:middle; '>
-                    <div style='margin-right:15px; margin-top:10px;'>
+                 <div class='' style='position:relative; '>
+                    <div style='height:42px; line-height:42px; vertical-align:middle;'>
                         <span>". $this->view->text($nameDb)."</span>
                         $option
                     </div>
                     <div class='pull-right' style='position:absolute; right:0px; top:0px; width:15px;'>
-                        <a class = 'icon-chevron-up $ascActive' href='" . $this->removeParams($nameDb, $ascActive ? '' : 'asc') . "'   title='Sort up'  ></a>
-                        <a class = 'icon-chevron-down $descActive' href='" . $this->removeParams($nameDb, $descActive ? '' : 'desc') . "'  title='Sort down'  ></a>
+                        <a class = '$ascActive' href='" . $this->removeParams($nameDb, $ascActive ? '' : 'asc') . "'   title='Sort up'  >
+                            <span class='glyphicon glyphicon-chevron-up'></span>
+                        </a>
+                        <a class = '$descActive' href='" . $this->removeParams($nameDb, $descActive ? '' : 'desc') . "'  title='Sort down'  >
+                            <span class='glyphicon glyphicon-chevron-down'></span>
+                        </a>
                     </div>
                  </div></div>
             </th>";
