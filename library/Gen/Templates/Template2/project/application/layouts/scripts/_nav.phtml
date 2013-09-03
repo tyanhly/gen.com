@@ -1,0 +1,127 @@
+<?php
+
+        $minDepth = 0;
+        $maxDepth = 1;
+        $onlyActive = 0;
+        $indent = '    ';
+        $ulClass = 'nav navbar-nav';
+        $html = '';
+
+        // find deepest active
+        if ($found = $this->navigation()->menu()->findActive($this->container, $minDepth, $maxDepth)) {
+            $foundPage = $found['page'];
+            $foundDepth = $found['depth'];
+        } else {
+            $foundPage = null;
+        }
+
+
+        $iterator = new RecursiveIteratorIterator($this->container,
+                        RecursiveIteratorIterator::SELF_FIRST);
+
+        if (is_int($maxDepth)) {
+            $iterator->setMaxDepth($maxDepth);
+        }
+
+
+        $prevDepth = -1;
+        foreach ($iterator as $page) {
+            $depth = $iterator->getDepth();
+            $isActive = $page->isActive(true);
+            if ($depth < $minDepth || !$this->navigation()->menu()->accept($page)) {
+                // page is below minDepth or not accepted by acl/visibilty
+                continue;
+            } else if ($onlyActive && !$isActive) {
+                // page is not active itself, but might be in the active branch
+                $accept = false;
+                if ($foundPage) {
+                    if ($foundPage->hasPage($page)) {
+                        // accept if page is a direct child of the active page
+                        $accept = true;
+                    } else if ($foundPage->getParent()->hasPage($page)) {
+                        // page is a sibling of the active page...
+                        if (!$foundPage->hasPages() ||
+                            is_int($maxDepth) && $foundDepth + 1 > $maxDepth) {
+                            // accept if active page has no children, or the
+                            // children are too deep to be rendered
+                            $accept = true;
+                        }
+                    }
+                }
+
+                if (!$accept) {
+                    continue;
+                }
+            }
+
+            // make sure indentation is correct
+            $depth -= $minDepth;
+            $myIndent = $indent . str_repeat('        ', $depth);
+
+            if ($depth > $prevDepth) {
+                // start new ul tag
+                if ($ulClass && $depth ==  0) {
+                    $ulClass = ' class="' . $ulClass . '"';
+                } else {
+                    $ulClass = ' class="dropdown-menu"';
+                }
+                $html .= $myIndent . '<ul' . $ulClass . '>' . "\n";
+            } else if ($prevDepth > $depth) {
+                // close li/ul tags until we're at current depth
+                for ($i = $prevDepth; $i > $depth; $i--) {
+                    $ind = $indent . str_repeat('        ', $i);
+                    $html .= $ind . '    </li>' . "\n";
+                    $html .= $ind . '</ul>' . "\n";
+                }
+                // close previous li tag
+                $html .= $myIndent . '    </li>' . "\n";
+            } else {
+                // close previous li tag
+                $html .= $myIndent . '    </li>' . "\n";
+            }
+
+            // render li, a tag and page
+            $aId = " id='{$page->getId()}'";
+            $aTitle = " title='{$page->getTitle()}'";
+            $aTarget = " target='{$page->getTarget()}'";
+            $aHref = " href='{$page->getHref()}'";
+            if($page->hasPages()){
+                $liClass = $isActive ? ' class = "dropdown active"' :  ' class = "dropdown"' ;
+                $aClass = " class='{$page->getClass()} dropdown-toggle'";
+                $aToggle = ' data-toggle="dropdown"';
+                $liDropdown = '<b class="caret"></b>';
+            }else{
+                $liClass = $isActive ? ' class="active"' : '';
+                $aClass = " class='{$page->getClass()}'";
+                $aToggle = '';
+                $liDropdown = '';
+            }
+            $pageHtml = "<a "
+                      . $aClass
+                      . $aId
+                      . $aTitle
+                      . $aTarget
+                      . $aHref
+                      . $aToggle
+                      . ">"
+                      . $this->escape($page->getLabel())
+                      . $liDropdown
+                      . '</a>';
+            $html .= $myIndent . '    <li' . $liClass . '>' . "\n"
+                   . $myIndent . '        ' . $pageHtml . "\n";
+//            echo $html;die;
+            // store as previous depth for next iteration
+            $prevDepth = $depth;
+        }
+
+        if ($html) {
+            // done iterating container; close open ul/li tags
+            for ($i = $prevDepth+1; $i > 0; $i--) {
+                $myIndent = $indent . str_repeat('        ', $i-1);
+                $html .= $myIndent . '    </li>' . "\n"
+                       . $myIndent . '</ul>' . "\n";
+            }
+            $html = rtrim($html, "\n");
+        }
+    echo $html;
+?>

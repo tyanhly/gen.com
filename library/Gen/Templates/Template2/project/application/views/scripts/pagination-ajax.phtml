@@ -1,0 +1,42 @@
+    <ul class="pagination controls-buttons">
+    <!-- First page link -->
+    <?php if (isset($this->previous)): ?>
+         <li><a href="#" rel="<?php echo $this->url(array('page' => $this->first, 'format' => 'html')); ?>">First</a></li>
+    <?php else: ?>
+         <li><a href="#" rel="#" class="disabled">First</a></li>
+    <?php endif; ?>
+
+    <!-- Previous page link -->
+    <?php if (isset($this->previous)): ?>
+         <li><a href="#" class="Previous" rel="<?php echo $this->url(array('page' => $this->previous)); ?>"><div  class="images-icons-fugue-navigation-180"></div> Previous</a></li>
+    <?php else: ?>
+        <li><a rel="#" class="disabled"><div class="images-icons-fugue-navigation-180"></div> Previous</a></li>
+    <?php endif; ?>
+
+    <!-- Numbered page links -->
+    <?php foreach ($this->pagesInRange as $page): ?>
+        <?php if ($page != $this->current): ?>
+            <li><a rel="<?php echo $this->url(array('page' => $page, 'format' => 'html')); ?>"><?php echo $page; ?></a></li>
+        <?php else: ?>
+            <li><a rel="#" class="current"><?php echo $page; ?></a></li>
+        <?php endif; ?>
+    <?php endforeach; ?>
+
+    <!-- Next page link -->
+    <?php if (isset($this->next)): ?>
+           <li><a rel="<?php echo $this->url(array('page' => $this->next, 'format' => 'html')); ?>">Next <div  class="images-icons-fugue-navigation"></div></a></li>
+    <?php else: ?>
+           <li><a rel="#" >Next <div  class="images-icons-fugue-navigation"></div></a></li>
+    <?php endif; ?>
+
+    <!-- Last page link -->
+    <?php if (isset($this->next)): ?>
+          <li><a rel="<?php echo $this->url(array('page' => $this->last, 'format' => 'html')); ?>">Last</a></li>
+    <?php else: ?>
+        <li><a rel="#" class="disabled">Last</a></li>
+    <?php endif; ?>
+        <li><a>Page <?php echo  $this->current; ?> of <?php echo $this->last; ?></a></li>
+    </ul>
+
+
+

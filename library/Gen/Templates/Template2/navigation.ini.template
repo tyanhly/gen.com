@@ -1,0 +1,19 @@
+[run]
+;********************************************************************
+;Home
+;********************************************************************
+navigation.home.label = Dashboard
+navigation.home.controller = index
+navigation.home.action = index
+navigation.home.title = index
+navigation.home.order = 1
+navigation.home.visible = true
+navigation.home.id = index
+navigation.home.resource = index.index
+
+
+;********************************************************************
+;Gen Code
+;********************************************************************
+
+%%Navigation%%

@@ -1,0 +1,55 @@
+<div class="row-fluid show-grid">
+    <div class="span12">
+        <h2>
+            <?php echo $this->text('%%TABLE_NAME%%') ?>
+        </h2>
+    </div>
+</div>
+<?php
+$typeSearchs = array(
+    'All' => 'All',
+    %%TYPE_SEARCHS%%
+);
+$buttons = array(
+    "<a class='btn btn-small'  
+        href='{$this->url(array('action' => 'add-'. $this->controller))}'>
+        <i class='icon-plus'></i>
+        Add {$this->text($this->controller)}
+    </a>"
+);
+echo $this->searchBar($typeSearchs, null, $buttons);
+
+?>
+
+
+<div class="row-fluid show-grid">
+    <div class="span12">
+        <table class="table table-striped table-bordered table-condensed">
+
+            <thead>
+                <tr>
+                    %%TH_GROUP%%
+                    
+                    <th>Actions</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <?php if (count($this->paginator) != 0) : ?>
+                    <?php 
+                        foreach ($this->paginator as $row){
+    
+                            echo $this->partial('%%PARTIAL_PATH%%', array('dataRow'=>$row) );
+                        }
+                    ?>
+                <?php else : ?>
+                    <tr><td colspan="100"><h3>No Result</h3></td></tr>
+                <?php endif; ?>
+            </tbody>
+
+            <?php echo $this->renderPaging($this->paginator); ?>
+        </table>
+
+        <?php echo $this->paginationControl($this->paginator, 'Sliding', 'pagination.phtml'); ?>
+    </div>
+</div>

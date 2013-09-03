@@ -1,0 +1,21 @@
+<?php
+/**
+ * partial loop of %%TABLE_NAME%%
+ * %%TABLE_NAME%%
+ */
+ 
+    $dataRow       = $this->dataRow;
+    
+?>
+<tr>
+    %%TD_GROUP%%
+    
+    <td>
+        <a href="%%UPDATE_PATH%%" class="btn btn-warning"> <i class="icon-edit"></i> 
+           Update
+        </a>
+        <a href="%%DELETE_PATH%%" class="btn btn-danger btn-delete"> <i class="icon-remove icon-white"></i> 
+           Delete
+        </a>
+    </td>
+</tr>
